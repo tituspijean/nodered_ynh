@@ -11,7 +11,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 ## Vue d'ensemble
 Programmation par flux de données pour l'Internet des objets.
 
-**Version incluse :** 1.3.3
+**Version incluse :** 1.3.4
 
 ## Captures d'écran
 
@@ -32,16 +32,13 @@ La configuration, et l'installation de plugins tels que pour [Home-Assistant](ht
 
 ## Caractéristiques spécifiques YunoHost
 
-#### Application privée
-
-Puisque les automatisations gérées par Node-Red peuvent être sensibles, l'application est systématiquement installée en mode privé. 
-
 #### Support multi-utilisateurs
 
 * L'authentification LDAP et HTTP est-elle prise en charge ? **Non**
-* L'application peut-elle être utilisée par plusieurs utilisateurs ? **Non**
+* L'application peut-elle être utilisée par plusieurs utilisateurs ? **Oui, l'éditeur est partagé par tous les utilisateurs autorisés**
+* Une permission `ui` est diponible au cas où vous installeriez les nodes de `node-red-dashboard`. Elle donne accès au tableau de bord à tout utilisateur ou visiteur autorisé, au chemin `/ui` après l'adresse spécifiée pour Node-RED.
 
-#### Supported architectures
+#### Architectures compatibles
 
 * x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nodered.svg)](https://ci-apps.yunohost.org/ci/apps/nodered/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nodered.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nodered/)
