@@ -42,6 +42,13 @@ ynh_script_progression --message="Stopping and removing the systemd service..." 
 ynh_remove_systemd_config
 
 #=================================================
+# REMOVE NODEJS
+#=================================================
+ynh_script_progression --message="Removing NodeJS version requirement..." --weight=4
+
+ynh_remove_nodejs
+
+#=================================================
 # REMOVE APP MAIN DIR
 #=================================================
 ynh_script_progression --message="Removing Node-RED main directory..." --weight=2
@@ -72,7 +79,7 @@ ynh_remove_logrotate
 #=================================================
 
 # Remove the log files
-ynh_secure_remove --file="/var/log/$app/"
+ynh_secure_remove --file="/var/log/$app"
 
 #=================================================
 # GENERIC FINALIZATION

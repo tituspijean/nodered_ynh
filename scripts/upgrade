@@ -21,11 +21,34 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 
+if [[ $path_url = "/" ]]
+then
+        nodes_url="/"
+        admin_url="/admin"
+else
+        nodes_url="$path_url"
+        admin_url="$path_url/admin"
+fi
+
 #=================================================
 # CHECK VERSION
 #=================================================
 
 upgrade_type=$(ynh_check_app_version_changed)
+
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up Node-RED before upgrading (may take a while)..." --weight=1
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -45,19 +68,10 @@ if ynh_legacy_permissions_exists; then
 	ynh_app_setting_delete --app=$app --key=is_public
 fi
 
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up Node-RED before upgrading (may take a while)..." --weight=1
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+if ! ynh_permission_exists --permission="admin"; then
+	# Create the required permissions
+	ynh_permission_create --permission="admin" --url="/admin" --label="admin" --show_tile=true
+fi
 
 #=================================================
 # CLOSING PORT
@@ -78,13 +92,16 @@ fi
 #=================================================
 ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="stop"
 
 #=================================================
 # INSTALL NODEJS
 #=================================================
 
-ynh_install_nodejs $nodejs_version
+if [ $(ynh_app_setting_get --app=$app --key=nodejs_version) != $nodejs_version ]; then
+	ynh_remove_nodejs
+	ynh_install_nodejs --nodejs_version=$nodejs_version
+fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -111,11 +128,13 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 #=================================================
 ynh_script_progression --message="Installing Node-RED..." --weight=30
 
-chown -R $app: $final_path
+ynh_use_nodejs
+
+chown -R $app: "$final_path"
 
 pushd $final_path
-	ynh_use_nodejs
-	ynh_exec_warn_less exec_as $app env PATH=$PATH npm install --production
+        ynh_exec_warn_less exec_as $app $ynh_node_load_PATH $ynh_npm install --production
+        ynh_exec_warn_less exec_as $app $ynh_node_load_PATH $ynh_npm install node-red-dashboard
 popd
 
 #=================================================
@@ -129,11 +148,9 @@ ynh_add_nginx_config
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-if [ ! -f $final_path/data/settings.js ]; then
-	cp $final_path/settings.js $final_path/data/settings.js
-fi
-ynh_replace_string --match_string="//httpRoot: '/red'," --replace_string="httpRoot: '$path_url'," --target_file="$final_path/data/settings.js"
-ynh_replace_string --match_string="//ui: { path: "ui" }," --replace_string="ui: { path: "/ui/" }," --target_file="$final_path/data/settings.js"
+
+# Set up the settings file
+ynh_add_config --template="../conf/settings.js" --destination="$final_path/data/settings.js"
 
 #=================================================
 # SETUP LOGROTATE
@@ -148,11 +165,6 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Upgrading systemd configuration..." --weight=1
 
-# Set the systemd service settings
-ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="../conf/systemd.service"
-ynh_replace_string --match_string="__NODEJS__" --replace_string="$nodejs_version" --target_file="../conf/systemd.service"
-ynh_replace_string --match_string="__ENV_PATH__" --replace_string="$PATH" --target_file="../conf/systemd.service"
-
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
@@ -163,7 +175,9 @@ ynh_add_systemd_config
 #=================================================
 
 # Set permissions on app files
-chown -R $app: $final_path
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app: "$final_path"
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
@@ -176,7 +190,7 @@ yunohost service add $app --description="Low-code programming for event-driven a
 #=================================================
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="start"
 
 #=================================================
 # RELOAD NGINX

@@ -1,56 +1,41 @@
 # Node-RED pour YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/nodered.svg)](https://dash.yunohost.org/appci/app/nodered) ![](https://ci-apps.yunohost.org/ci/badges/nodered.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nodered.maintain.svg)  
-[![Install Node-RED with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nodered)
+[![Niveau d'intégration](https://dash.yunohost.org/integration/nodered.svg)](https://dash.yunohost.org/appci/app/nodered) ![](https://ci-apps.yunohost.org/ci/badges/nodered.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/nodered.maintain.svg)  
+[![Installer Node-RED avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nodered)
 
 *[Read this readme in english.](./README.md)*
+*[Lire ce readme en français.](./README_fr.md)*
 
-> *Ce package vous permet d'installer Node-RED rapidement et simplement sur un serveur YunoHost.  
+> *Ce package vous permet d'installer Node-RED rapidement et simplement sur un serveur YunoHost.
 Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
 
 ## Vue d'ensemble
-Programmation par flux de données pour l'Internet des objets.
 
-**Version incluse :** 1.3.4
+Programmation par flux de données pour l'Internet des objets
+
+**Version incluse :** 1.3.5~ynh2
+
+
 
 ## Captures d'écran
 
-![](https://camo.githubusercontent.com/01ed64b01d73046a485ea82b645a3be529c64809/687474703a2f2f6e6f64657265642e6f72672f696d616765732f6e6f64652d7265642d73637265656e73686f742e706e67)
+![](./doc/screenshots/screenshot.jpg)
 
-## Démo
+## Avertissements / informations importantes
 
-* [Vidéo officielle](https://youtu.be/vYreeoCoQPI)
+Le système de permissions de YunoHost permet de paramétrer les accès à Node-RED. Par défaut, seul l'administrateur sélectionné lors de l'installation y a accès.
+* La permission `main` protège
+  * `/chemin`, pour accéder au tableau de bord ;
+  * toutes les routes `/path/<node>` définis par les *nodes* HTTP (à l'exception de `/chemin/admin`).
+* L'utilisateur choisi comme admin à l'installation aura la permission `admin` et aura accès à l'éditeur à l'adresse `/chemin/admin`
 
-## Configuration
+## Documentations et ressources
 
-Lancer ou arrêter son service via le panneau d'administration ou via SSH.
-La configuration, et l'installation de plugins tels que pour [Home-Assistant](https://github.com/YunoHost-Apps/homeassistant_ynh) se font dans l'interface web.
-
-## Documentation
-
-* Documentation officielle : https://nodered.org/docs/
-
-## Caractéristiques spécifiques YunoHost
-
-#### Support multi-utilisateurs
-
-* L'authentification LDAP et HTTP est-elle prise en charge ? **Non**
-* L'application peut-elle être utilisée par plusieurs utilisateurs ? **Oui, l'éditeur est partagé par tous les utilisateurs autorisés**
-* Une permission `ui` est diponible au cas où vous installeriez les nodes de `node-red-dashboard`. Elle donne accès au tableau de bord à tout utilisateur ou visiteur autorisé, au chemin `/ui` après l'adresse spécifiée pour Node-RED.
-
-#### Architectures compatibles
-
-* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/nodered.svg)](https://ci-apps.yunohost.org/ci/apps/nodered/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/nodered.svg)](https://ci-apps-arm.yunohost.org/ci/apps/nodered/)
-
-## Liens
-
- * Signaler un bug : https://github.com/YunoHost-Apps/nodered_ynh/issues
- * Site de l'application : https://nodered.org/
- * Dépôt de l'application principale : https://github.com/node-red/node-red
- * Site web YunoHost : https://yunohost.org/
-
----
+* Site officiel de l'app : https://nodered.org
+* Documentation officielle utilisateur : https://nodered.org/docs/
+* Dépôt de code officiel de l'app : https://github.com/node-red/node-red
+* Documentation YunoHost pour cette app : https://yunohost.org/app_nodered
+* Signaler un bug : https://github.com/YunoHost-Apps/nodered_ynh/issues
 
 ## Informations pour les développeurs
 
@@ -62,3 +47,5 @@ sudo yunohost app install https://github.com/YunoHost-Apps/nodered_ynh/tree/test
 ou
 sudo yunohost app upgrade nodered -u https://github.com/YunoHost-Apps/nodered_ynh/tree/testing --debug
 ```
+
+**Plus d'infos sur le packaging d'applications :** https://yunohost.org/packaging_apps

@@ -65,7 +65,13 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 #=================================================
 
 # Restore permissions on app files
-chown -R $app: $final_path
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app: "$final_path"
+
+# Create log directory and apply permissions
+mkdir -p /var/log/$app
+chown -R $app: /var/log/$app
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -73,7 +79,7 @@ chown -R $app: $final_path
 # INSTALL NODEJS
 #=================================================
 
-ynh_install_nodejs $nodejs_version
+ynh_install_nodejs --nodejs_version=$nodejs_version
 
 #=================================================
 # RESTORE SYSTEMD
@@ -94,7 +100,7 @@ yunohost service add $app --description="Low-code programming for event-driven a
 #=================================================
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="start"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
